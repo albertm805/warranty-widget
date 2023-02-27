@@ -15,19 +15,7 @@
         $.get(
           "/api/catalog_system/pvt/sku/stockkeepingunitbyid/" + productId + "",
           function (data) {
-
             if (data.Services.length !== 0) {
-
-            $("body").on("click", 'a[href="#"],a[href=""]', function (e) {
-              const warrantySelected = $( ".warranty .warry-togle-nav .item-warry-shelf input[type=radio]");
-              if (warrantySelected.checked == true) {
-                e.preventDefault();
-              } else {
-                setTimeout(() => {
-                  window.location.reload();
-                }, 3000);
-              }
-              });
               // Obtenemos la garantias de servicio atraves de la api
               const Offerings = data.Services;
               console.log(Offerings);
@@ -63,40 +51,38 @@
                 );
 
                 setTimeout(() => {
-                  $( ".warranty .warry-togle-nav .item-warry-shelf input[type=radio]").click(function () {
-                    const valueservice = $(this).val();
-                    console.log(valueservice);
-
-                    $("body").on("click", ".product__buy a.buy-in-page-button", function (e) {
-                      e.preventDefault();
-                      const that = $(this);
-                      const skuId = skuJson.skus[0].sku;
-                      if (skuId != "") {
-                        $.ajax({
-                          url:
-                            "/checkout/cart/add?sku=" +
-                            skuId +
-                            "&qty=1&seller=1&sc=1&service=" +
-                            valueservice +
-                            "&sc=1&price=" +
-                            bestprice +
-                            "&cv=" +
-                            idproductcart +
-                            "&sc=1",
-                          type: "get",
-                          success: function (data) {
-                            vtexjs.checkout
-                              .getOrderForm()
-                              .done(function (orderForm) {
-                                that.addClass("disabled");
+                    $("body").on( "click", ".product__buy a.buy-in-page-button", function (e) {
+                        const skuId = skuJson.skus[0].sku;
+                        const warranty = $( ".warranty .warry-togle-nav .item-warry-shelf input[type=radio]");
+                        if($(warranty).is(':checked')) {
+                          const valueservice = $(warranty).val();
+                          $.ajax({
+                            url:
+                              "/checkout/cart/add?sku=" +
+                              skuId +
+                              "&qty=1&seller=1&sc=1&service=" +
+                              valueservice +
+                              "&sc=1&price=" +
+                              bestprice +
+                              "&cv=" +
+                              idproductcart +
+                              "&sc=1",
+                            type: "POST",
+                            success: function (data) {
+                              console.log(data)
+                              setTimeout(() => {
                                 window.location.reload();
-                                return false;
-                              });
-                          },
-                        });
+                              }, 1000); 
+                          }
+                        })
+                        } else {
+                          setTimeout(() => {
+                            window.location.reload();
+                          }, 1000);
+                        }
+
                       }
-                    });
-                  });
+                    );
                 }, 10);
 
                 // Pintamos shelf de garantias
@@ -108,24 +94,26 @@
                 }
               }
               add_items_offerings();
-            // Dropdown
-            $(".warranty .box-warry strong").click(function () {
-              $(this).hasClass("active")
-                ? ($(this).removeClass("active"), $("#warry").slideUp())
-                : ($(this).addClass("active"),
-                  $("#warry").slideDown(),
-                  $("#warry").css({
-                    height: "80px",
-                  }));
-            });
+              // Dropdown
+              $(".warranty .box-warry strong").click(function () {
+                $(this).hasClass("active")
+                  ? ($(this).removeClass("active"), $("#warry").slideUp())
+                  : ($(this).addClass("active"),
+                    $("#warry").slideDown(),
+                    $("#warry").css({
+                      height: "80px",
+                    }));
+              });
 
-            // Editar texto garantias
-            $(".warranty .warry-togle-nav .item-warry-shelf").each(function () {
-              var text = $(this).html();
-              $(this).html(
-                text.replace("Extiende la garantía de tu producto -", "")
+              // Editar texto garantias
+              $(".warranty .warry-togle-nav .item-warry-shelf").each(
+                function () {
+                  var text = $(this).html();
+                  $(this).html(
+                    text.replace("Extiende la garantía de tu producto -", "")
+                  );
+                }
               );
-            });
             }
           }
         );
